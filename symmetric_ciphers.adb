@@ -16,7 +16,7 @@ package body Symmetric_Ciphers is
 
    function XOR_Blocks (Left, Right : TEA_Block) return TEA_Block is
    begin
-      return (Left (0) xor Right (0), Left (1) xor Right (1));
+      return [Left (0) xor Right (0), Left (1) xor Right (1)];
    end XOR_Blocks;
 
    --  ========================================================================
@@ -24,15 +24,15 @@ package body Symmetric_Ciphers is
    --  ========================================================================
 
    procedure TEA_Encrypt_Block (Block : in out TEA_Block; Key : TEA_Key) is
-      V0    : Word32 := Block (0);
-      V1    : Word32 := Block (1);
-      Sum   : Word32 := 0;
-      Delta : constant Word32 := 16#9E3779B9#;
+      V0        : Word32 := Block (0);
+      V1        : Word32 := Block (1);
+      Sum       : Word32 := 0;
+      TEA_Delta : constant Word32 := 16#9E3779B9#;
    begin
       --  Standard TEA uses 32 rounds
       for I in 1 .. 32 loop
          pragma Unreferenced (I);
-         Sum := Sum + Delta;
+         Sum := Sum + TEA_Delta;
          V0 := V0 + ((Shift_Left (V1, 4) + Key (0)) xor (V1 + Sum) xor (Shift_Right (V1, 5) + Key (1)));
          V1 := V1 + ((Shift_Left (V0, 4) + Key (2)) xor (V0 + Sum) xor (Shift_Right (V0, 5) + Key (3)));
       end loop;
@@ -41,17 +41,17 @@ package body Symmetric_Ciphers is
    end TEA_Encrypt_Block;
 
    procedure TEA_Decrypt_Block (Block : in out TEA_Block; Key : TEA_Key) is
-      V0    : Word32 := Block (0);
-      V1    : Word32 := Block (1);
-      Delta : constant Word32 := 16#9E3779B9#;
-      Sum   : Word32 := 16#C6EF3720#; -- Delta * 32, precomputed for decryption
+      V0        : Word32 := Block (0);
+      V1        : Word32 := Block (1);
+      TEA_Delta : constant Word32 := 16#9E3779B9#;
+      Sum       : Word32 := 16#C6EF3720#; -- TEA_Delta * 32, precomputed for decryption
    begin
       --  Reversing the 32 rounds
       for I in 1 .. 32 loop
          pragma Unreferenced (I);
          V1 := V1 - ((Shift_Left (V0, 4) + Key (2)) xor (V0 + Sum) xor (Shift_Right (V0, 5) + Key (3)));
          V0 := V0 - ((Shift_Left (V1, 4) + Key (0)) xor (V1 + Sum) xor (Shift_Right (V1, 5) + Key (1)));
-         Sum := Sum - Delta;
+         Sum := Sum - TEA_Delta;
       end loop;
       Block (0) := V0;
       Block (1) := V1;
