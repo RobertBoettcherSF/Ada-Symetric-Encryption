@@ -31,6 +31,7 @@ package body Symmetric_Ciphers is
    begin
       --  Standard TEA uses 32 rounds
       for I in 1 .. 32 loop
+         pragma Unreferenced (I);
          Sum := Sum + Delta;
          V0 := V0 + ((Shift_Left (V1, 4) + Key (0)) xor (V1 + Sum) xor (Shift_Right (V1, 5) + Key (1)));
          V1 := V1 + ((Shift_Left (V0, 4) + Key (2)) xor (V0 + Sum) xor (Shift_Right (V0, 5) + Key (3)));
@@ -47,6 +48,7 @@ package body Symmetric_Ciphers is
    begin
       --  Reversing the 32 rounds
       for I in 1 .. 32 loop
+         pragma Unreferenced (I);
          V1 := V1 - ((Shift_Left (V0, 4) + Key (2)) xor (V0 + Sum) xor (Shift_Right (V0, 5) + Key (3)));
          V0 := V0 - ((Shift_Left (V1, 4) + Key (0)) xor (V1 + Sum) xor (Shift_Right (V1, 5) + Key (1)));
          Sum := Sum - Delta;
